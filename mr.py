@@ -13,7 +13,6 @@ class User(BaseModel):
     user: EmailStr
     assets: List[str] = []
     main: Optional[str] = None
-
 class AssetInput(BaseModel):
     email: EmailStr
     asset_url: str
@@ -24,6 +23,10 @@ class EmailInput(BaseModel):
 class MainInput(BaseModel):
     email: EmailStr
     main_url: str
+
+@app.get('/')
+def home():
+    return {'This is Home Page'}
 
 @app.post("/create")
 def create_user(email_input: EmailInput):
@@ -60,4 +63,4 @@ def fetch_main(email_input: EmailInput):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
