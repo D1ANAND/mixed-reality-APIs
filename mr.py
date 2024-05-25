@@ -2,8 +2,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from fastapi.responses import JSONResponse
+from dotenv import load_dotenv
 import os
-
+load_dotenv()
 app = FastAPI()
 
 # In-memory db
@@ -63,4 +64,4 @@ def fetch_main(email_input: EmailInput):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app)
+    uvicorn.run('app.api:app',port=int(os.environ.get('PORT', 8000)), host="0.0.0.0", reload = True)
