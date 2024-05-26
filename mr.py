@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,Query
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from fastapi.responses import JSONResponse
@@ -56,11 +56,10 @@ def set_main(main_input: MainInput):
     return JSONResponse(content={"message": "Main URL set successfully"})
 
 @app.get("/fetchMain")
-def fetch_main(email_input: EmailInput):
-    email = email_input.email
+def fetch_main(email: EmailStr = Query(...)):
     if email not in users_db:
         raise HTTPException(status_code=404, detail="User not found")
-    return JSONResponse(content={"main_url": users_db[email].main})
+    return {"main_url": users_db[email].main}
 
 if __name__ == "__main__":
     import uvicorn
