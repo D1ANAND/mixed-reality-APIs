@@ -24,7 +24,7 @@ class User(BaseModel):
     user: EmailStr
     assets: List[str] = []
     main: Optional[str] = None
-
+    level: int = 0
 
 
 class EmailInput(BaseModel):
@@ -79,6 +79,20 @@ def fetch_main(fetch_main_input: FetchMainInput):
         raise HTTPException(status_code=404, detail="User not found")
     return {"main_url": users_db[email].main}
 
+class XPInput(BaseModel):
+    email: EmailStr
+    asset_url:str
+
+@app.post("/increaseXP")
+def increase_xp(xp_input: XPInput):
+    email=xp_input.email
+    asset_url= xp_input.asset_url
+    if email not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    if asset_url not in users_db[email].assets:
+        raise HTTPException(status_code=404, detail="Asset not found")
+    users_db[email].level +=1
+    return JSONResponse(content={"new_level": users_db[email].level})
 
 if __name__ == "__main__":
     import uvicorn
