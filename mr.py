@@ -94,6 +94,17 @@ def increase_xp(xp_input: XPInput):
     users_db[email].level +=1
     return JSONResponse(content={"new_level": users_db[email].level})
 
+class ViewAssetsInput(BaseModel):
+    email: EmailStr
+
+@app.post("/view")
+def view_assets(view_assets_input: ViewAssetsInput):
+    email = view_assets_input.email
+    if email not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"assets": users_db[email].assets}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
