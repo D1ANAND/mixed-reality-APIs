@@ -183,4 +183,4 @@ def generate_3d_model(prompt_input: PromptInput):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
