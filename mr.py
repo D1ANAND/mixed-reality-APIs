@@ -4,6 +4,10 @@ from typing import List, Optional
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import os
+import requests
+import time
+
+
 load_dotenv()
 app = FastAPI()
 
@@ -105,6 +109,52 @@ def view_assets(view_assets_input: ViewAssetsInput):
     return {"assets": users_db[email].assets}
 
 
+
+
+YOUR_API_KEY = os.environ.get("YOUR_API_KEY")
+
+class PromptInput(BaseModel):
+    prompt: str
+
+@app.post("/generate-3d-model")
+def generate_3d_model(prompt_input: PromptInput):
+    prompt = prompt_input.prompt
+    
+    # First request to generate task ID
+    headers = {
+        "Authorization": f"Bearer {YOUR_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "prompt": prompt,
+        "mode": "preview",
+        "art_style": "realistic",
+        "negative_prompt": "low quality, low resolution, low poly, ugly"
+    }
+    response = requests.post(
+        "https://api.meshy.ai/v2/text-to-3d/generate", 
+        headers=headers, 
+        json=payload
+    )
+    response.raise_for_status()
+    task_id = response.json().get("task_id")
+
+    if not task_id:
+        raise HTTPException(status_code=500, detail="Failed to generate task ID")
+
+   
+    time.sleep(20)
+
+    
+    response = requests.get(
+        f"https://api.meshy.ai/v2/text-to-3d/{task_id}",
+        headers=headers,
+    )
+    response.raise_for_status()
+    
+    return response.json()
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
