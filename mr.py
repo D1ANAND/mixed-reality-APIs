@@ -55,7 +55,7 @@ class EmailInput(BaseModel):
 def create_user(email_input: EmailInput):
     email = email_input.email
     if email in users_db:
-        raise HTTPException(status_code=400, detail="User already exists")
+        return JSONResponse(content={"message": "User already exists"})
     users_db[email] = User(user=email)
     return JSONResponse(content={"message": "User created successfully"})
 
