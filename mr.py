@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import requests
 import time
+import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
 
 load_dotenv()
@@ -22,7 +24,17 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
-# In-memory db
+AWS_ACCESS_KEY = os.getenv('MY_AWS_ACCESS_KEY')
+AWS_SECRET_KEY = os.getenv('MY_AWS_SECRET_KEY')
+S3_BUCKET_NAME = os.getenv('MY_S3_BUCKET_NAME')
+
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY
+)
+
+
 users_db = {}
 
 @app.get('/')
@@ -123,9 +135,6 @@ def fetch_main_get(email: str = Query(..., description="Email of the user")):
     return {"main_url": users_db[email].main}
 
 
-
-
-
 YOUR_API_KEY = os.environ.get("YOUR_API_KEY")
 
 class PromptInput(BaseModel):
@@ -166,16 +175,28 @@ def generate_3d_model(prompt_input: PromptInput):
         f"https://api.meshy.ai/v2/text-to-3d/{task_id}",
         headers=headers,
     )
-    response.raise_for_status()
-    print(response.json())
+    data = response.json()
+
+    fbx_url = data.get('model_urls', {}).get('fbx')
     
-    return response.json()
+    if fbx_url:
+        print({"fbx": fbx_url})
+    else:
+        print("FBX URL not found")
 
+    fbx_response = requests.get(fbx_url)
+    fbx_response.raise_for_status()
 
+    s3_key = f"generated_models/{task_id}.fbx"
+    try:
+        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=fbx_response.content)
+        s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        raise HTTPException(status_code=500, detail="S3 credentials error")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to upload to S3")
 
-
-
-
+    return {"s3_url": s3_url}
 
 
 
