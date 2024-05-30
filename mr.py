@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException,Query
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 import requests
@@ -10,6 +11,16 @@ import time
 
 load_dotenv()
 app = FastAPI()
+
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+)
 
 # In-memory db
 users_db = {}
