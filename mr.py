@@ -7,8 +7,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import time
-import boto3
-from openai import OpenAI
+
 
 load_dotenv()
 app = FastAPI()
