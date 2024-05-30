@@ -116,7 +116,7 @@ YOUR_API_KEY = os.environ.get("YOUR_API_KEY")
 class PromptInput(BaseModel):
     prompt: str
 
-@app.post("/generate-3d-model")
+@app.post("/generateassets")
 def generate_3d_model(prompt_input: PromptInput):
     prompt = prompt_input.prompt
     
