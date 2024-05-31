@@ -180,16 +180,16 @@ def generate_3d_model(prompt_input: PromptInput):
     obj_url = data.get('model_urls', {}).get('obj')
     
     if obj_url:
-        print({"fbx": obj_url})
+        print({"obj": obj_url})
     else:
-        print("FBX URL not found")
+        print("OBJ URL not found")
 
-    fbx_response = requests.get(obj_url)
-    fbx_response.raise_for_status()
+    obj_response = requests.get(obj_url)
+    obj_response.raise_for_status()
 
-    s3_key = f"generated_models/{task_id}.fbx"
+    s3_key = f"generated_models/{task_id}.obj"
     try:
-        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=fbx_response.content)
+        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=obj_response.content)
         s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
     except (NoCredentialsError, PartialCredentialsError) as e:
         raise HTTPException(status_code=500, detail="S3 credentials error")
@@ -203,4 +203,4 @@ def generate_3d_model(prompt_input: PromptInput):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
