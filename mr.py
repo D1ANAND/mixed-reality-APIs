@@ -196,11 +196,13 @@ def generate_3d_model(prompt_input: PromptInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to upload to S3")
 
-    return {"s3_url": s3_url}
+    return {"s3_url": s3_url, "obj": obj_url}
+
+
 
 
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
