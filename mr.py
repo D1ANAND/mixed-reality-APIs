@@ -126,8 +126,6 @@ def view_assets(view_assets_input: ViewAssetsInput):
     return {"assets": users_db[email].assets}
 
 
-
-
 @app.get("/fetchMainget")
 def fetch_main_get(email: str = Query(..., description="Email of the user")):
     if email not in users_db:
@@ -142,11 +140,10 @@ class PromptInput(BaseModel):
 
 # , "obj": obj_url
 @app.get("/generateassets")
-def generate_3d_model_get(prompt: str = Query(..., description="The prompt for generating the 3D model")):
-    # First request to generate task ID
+async def generate_3d_model_get(prompt: str = Query(..., description="The prompt for generating the 3D model")):
+
     headers = {
         "Authorization": f"Bearer {YOUR_API_KEY}",
-        # "Content-Type": "application/json"
     }
     payload = {
         "mode": "preview",
@@ -196,20 +193,9 @@ def generate_3d_model_get(prompt: str = Query(..., description="The prompt for g
         raise HTTPException(status_code=500, detail="Failed to upload to S3")
 
     return {"s3_url": s3_url}
-
-
-
-
-
-# class TextureInput(BaseModel):
-#     texture:str
-    
-
-# @app.post("/generatetexture")
-# def generate_texture(tinput:TextureInput):
     
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
