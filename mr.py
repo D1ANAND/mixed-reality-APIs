@@ -140,10 +140,9 @@ YOUR_API_KEY = os.environ.get("YOUR_API_KEY")
 class PromptInput(BaseModel):
     prompt: str
 
-@app.post("/generateassets")
-def generate_3d_model(prompt_input: PromptInput):
-    prompt = prompt_input.prompt
-    
+# , "obj": obj_url
+@app.get("/generateassets")
+def generate_3d_model_get(prompt: str = Query(..., description="The prompt for generating the 3D model")):
     # First request to generate task ID
     headers = {
         "Authorization": f"Bearer {YOUR_API_KEY}",
@@ -167,10 +166,10 @@ def generate_3d_model(prompt_input: PromptInput):
     if not task_id:
         raise HTTPException(status_code=500, detail="Failed to generate task ID")
 
-   
+    # Wait for the model to be generated
     time.sleep(60)
 
-    
+    # Retrieve the generated model
     response = requests.get(
         f"https://api.meshy.ai/v2/text-to-3d/{task_id}",
         headers=headers,
@@ -178,11 +177,11 @@ def generate_3d_model(prompt_input: PromptInput):
     data = response.json()
 
     obj_url = data.get('model_urls', {}).get('obj')
-    
+
     if obj_url:
         print({"obj": obj_url})
     else:
-        print("OBJ URL not found")
+        raise HTTPException(status_code=500, detail="OBJ URL not found")
 
     obj_response = requests.get(obj_url)
     obj_response.raise_for_status()
@@ -198,14 +197,17 @@ def generate_3d_model(prompt_input: PromptInput):
 
     return {"s3_url": s3_url}
 
-# , "obj": obj_url
 
-# class TextureInput(BaseModel)
+
+
+
+# class TextureInput(BaseModel):
 #     texture:str
     
 
 # @app.post("/generatetexture")
-# def generate_texture(input:TextureInput)
+# def generate_texture(tinput:TextureInput):
+    
 
 
 if __name__ == "__main__":
