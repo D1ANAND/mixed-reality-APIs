@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,Query
+from fastapi import FastAPI, HTTPException,Query,Path
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from fastapi.responses import JSONResponse
@@ -138,9 +138,9 @@ YOUR_API_KEY = os.environ.get("YOUR_API_KEY")
 class PromptInput(BaseModel):
     prompt: str
 
-# , "obj": obj_url
-@app.get("/generateassets")
-async def generate_3d_model_get(prompt: str = Query(..., description="The prompt for generating the 3D model")):
+
+@app.get("/generateassets/{prompt}")
+async def generate_3d_model_get(prompt: str = Path(..., description="The prompt for generating the 3D model")):
 
     headers = {
         "Authorization": f"Bearer {YOUR_API_KEY}",
@@ -162,11 +162,9 @@ async def generate_3d_model_get(prompt: str = Query(..., description="The prompt
 
     if not task_id:
         raise HTTPException(status_code=500, detail="Failed to generate task ID")
-
-    # Wait for the model to be generated
+    
     time.sleep(60)
 
-    # Retrieve the generated model
     response = requests.get(
         f"https://api.meshy.ai/v2/text-to-3d/{task_id}",
         headers=headers,
@@ -198,4 +196,4 @@ async def generate_3d_model_get(prompt: str = Query(..., description="The prompt
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="127.0.0.1")
+    uvicorn.run(app,port=int(os.environ.get('PORT', 8080)), host="0.0.0.0")
