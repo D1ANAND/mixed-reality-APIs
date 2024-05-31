@@ -177,14 +177,14 @@ def generate_3d_model(prompt_input: PromptInput):
     )
     data = response.json()
 
-    fbx_url = data.get('model_urls', {}).get('fbx')
+    obj_url = data.get('model_urls', {}).get('obj')
     
-    if fbx_url:
-        print({"fbx": fbx_url})
+    if obj_url:
+        print({"fbx": obj_url})
     else:
         print("FBX URL not found")
 
-    fbx_response = requests.get(fbx_url)
+    fbx_response = requests.get(obj_url)
     fbx_response.raise_for_status()
 
     s3_key = f"generated_models/{task_id}.fbx"
