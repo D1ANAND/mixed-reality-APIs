@@ -171,24 +171,24 @@ async def generate_3d_model_get(prompt: str = Path(..., description="The prompt 
     )
     data = response.json()
 
-    gbl_url = data.get('model_urls', {}).get('gbl')
+    glb_url = data.get('model_urls', {}).get('glb')
 
-    if gbl_url:
-        print({"gbl": gbl_url})
+    if glb_url:
+        print({"glb": glb_url})
     else:
-        raise HTTPException(status_code=500, detail="GBL URL not found")
+        raise HTTPException(status_code=569, detail="GLB URL not found")
 
-    gbl_response = requests.get(gbl_url)
-    gbl_response.raise_for_status()
+    glb_response = requests.get(glb_url)
+    glb_response.raise_for_status()
 
-    s3_key = f"generated_models/{task_id}.gbl"
+    s3_key = f"generated_models/{task_id}.glb"
     try:
-        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=gbl_response.content)
+        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=glb_response.content)
         s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
     except (NoCredentialsError, PartialCredentialsError) as e:
-        raise HTTPException(status_code=500, detail="S3 credentials error")
+        raise HTTPException(status_code=501, detail="S3 credentials error")
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to upload to S3")
+        raise HTTPException(status_code=503, detail="Failed to upload to S3")
 
     return {"s3_url": s3_url}
     
