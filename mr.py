@@ -171,19 +171,19 @@ async def generate_3d_model_get(prompt: str = Path(..., description="The prompt 
     )
     data = response.json()
 
-    obj_url = data.get('model_urls', {}).get('obj')
+    gbl_url = data.get('model_urls', {}).get('gbl')
 
-    if obj_url:
-        print({"obj": obj_url})
+    if gbl_url:
+        print({"gbl": gbl_url})
     else:
-        raise HTTPException(status_code=500, detail="OBJ URL not found")
+        raise HTTPException(status_code=500, detail="GBL URL not found")
 
-    obj_response = requests.get(obj_url)
-    obj_response.raise_for_status()
+    gbl_response = requests.get(gbl_url)
+    gbl_response.raise_for_status()
 
-    s3_key = f"generated_models/{task_id}.obj"
+    s3_key = f"generated_models/{task_id}.gbl"
     try:
-        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=obj_response.content)
+        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=s3_key, Body=gbl_response.content)
         s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
     except (NoCredentialsError, PartialCredentialsError) as e:
         raise HTTPException(status_code=500, detail="S3 credentials error")
